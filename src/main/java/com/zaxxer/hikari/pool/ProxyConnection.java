@@ -270,7 +270,8 @@ public abstract class ProxyConnection implements Connection
    @Override
    public Statement createStatement(int resultSetType, int concurrency) throws SQLException
    {
-      return ProxyFactory.getProxyStatement(this, trackStatement(delegate.createStatement(resultSetType, concurrency)));
+      return ProxyFactory.getProxyStatement(this,
+         trackStatement(delegate.createStatement(resultSetType, concurrency)));
    }
 
    /** {@inheritDoc} */
@@ -305,7 +306,8 @@ public abstract class ProxyConnection implements Connection
    @Override
    public PreparedStatement prepareStatement(String sql) throws SQLException
    {
-      return ProxyFactory.getProxyPreparedStatement(this, trackStatement(delegate.prepareStatement(sql)));
+      return ProxyFactory.getProxyPreparedStatement(this,
+         trackStatement(delegate.prepareStatement(sql)));
    }
 
    /** {@inheritDoc} */

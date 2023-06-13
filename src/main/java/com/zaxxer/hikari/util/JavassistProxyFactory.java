@@ -64,13 +64,15 @@ public final class JavassistProxyFactory
 
       try {
          // Cast is not needed for these
-         String methodBody = "{ try { return delegate.method($$); } catch (SQLException e) { throw checkException(e); } }";
+         String methodBody = "{ try { return delegate.method($$); } " +
+            "catch (SQLException e) { throw checkException(e); } }";
          generateProxyClass(Connection.class, ProxyConnection.class.getName(), methodBody);
          generateProxyClass(Statement.class, ProxyStatement.class.getName(), methodBody);
          generateProxyClass(ResultSet.class, ProxyResultSet.class.getName(), methodBody);
 
          // For these we have to cast the delegate
-         methodBody = "{ try { return ((cast) delegate).method($$); } catch (SQLException e) { throw checkException(e); } }";
+         methodBody = "{ try { return ((cast) delegate).method($$); }" +
+            " catch (SQLException e) { throw checkException(e); } }";
          generateProxyClass(PreparedStatement.class, ProxyPreparedStatement.class.getName(), methodBody);
          generateProxyClass(CallableStatement.class, ProxyCallableStatement.class.getName(), methodBody);
 
@@ -116,7 +118,8 @@ public final class JavassistProxyFactory
    /**
     *  Generate Javassist Proxy Classes
     */
-   private static <T> void generateProxyClass(Class<T> primaryInterface, String superClassName, String methodBody) throws Exception
+   private static <T> void generateProxyClass(Class<T> primaryInterface,
+                                              String superClassName, String methodBody) throws Exception
    {
       String newClassName = superClassName.replaceAll("(.+)\\.(\\w+)", "$1.Hikari$2");
 
@@ -128,7 +131,8 @@ public final class JavassistProxyFactory
 
       targetCt.setModifiers(Modifier.PUBLIC);
 
-      // Make a set of method signatures we inherit implementation for, so we don't generate delegates for these
+      // Make a set of method signatures we inherit implementation for,
+      // so we don't generate delegates for these
       Set<String> superSigs = new HashSet<>();
       for (CtMethod method : superCt.getMethods()) {
          if ((method.getModifiers() & Modifier.FINAL) == Modifier.FINAL) {
@@ -166,7 +170,8 @@ public final class JavassistProxyFactory
 
             String modifiedBody = methodBody;
 
-            // If the super-Proxy has concrete methods (non-abstract), transform the call into a simple super.method() call
+            // If the super-Proxy has concrete methods (non-abstract),
+            // transform the call into a simple super.method() call
             CtMethod superMethod = superCt.getMethod(intfMethod.getName(), intfMethod.getSignature());
             if ((superMethod.getModifiers() & Modifier.ABSTRACT) != Modifier.ABSTRACT) {
                modifiedBody = modifiedBody.replace("((cast) ", "");
@@ -181,7 +186,8 @@ public final class JavassistProxyFactory
                modifiedBody = modifiedBody.replace("method", method.getName());
             }
             else {
-               modifiedBody = "{ return ((cast) delegate).method($$); }".replace("method", method.getName()).replace("cast", primaryInterface.getName());
+               modifiedBody = "{ return ((cast) delegate).method($$); }".
+                  replace("method", method.getName()).replace("cast", primaryInterface.getName());
             }
 
             if (method.getReturnType() == CtClass.voidType) {

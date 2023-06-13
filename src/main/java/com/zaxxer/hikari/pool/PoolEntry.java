@@ -67,7 +67,8 @@ final class PoolEntry implements IConcurrentBagEntry
       stateUpdater = AtomicIntegerFieldUpdater.newUpdater(PoolEntry.class, "state");
    }
 
-   PoolEntry(final Connection connection, final PoolBase pool, final boolean isReadOnly, final boolean isAutoCommit)
+   PoolEntry(final Connection connection, final PoolBase pool,
+             final boolean isReadOnly, final boolean isAutoCommit)
    {
       this.connection = connection;
       this.hikariPool = (HikariPool) pool;
@@ -100,7 +101,8 @@ final class PoolEntry implements IConcurrentBagEntry
 
    Connection createProxyConnection(final ProxyLeakTask leakTask, final long now)
    {
-      return ProxyFactory.getProxyConnection(this, connection, openStatements, leakTask, now, isReadOnly, isAutoCommit);
+      return ProxyFactory.getProxyConnection(this, connection, openStatements,
+         leakTask, now, isReadOnly, isAutoCommit);
    }
 
    void resetConnectionState(final ProxyConnection proxyConnection, final int dirtyBits) throws SQLException
