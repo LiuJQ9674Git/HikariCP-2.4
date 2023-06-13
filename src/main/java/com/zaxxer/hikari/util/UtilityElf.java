@@ -127,13 +127,17 @@ public final class UtilityElf
     * @param policy the RejectedExecutionHandler policy
     * @return a ThreadPoolExecutor
     */
-   public static ThreadPoolExecutor createThreadPoolExecutor(final BlockingQueue<Runnable> queue, final String threadName, ThreadFactory threadFactory, final RejectedExecutionHandler policy)
+   public static ThreadPoolExecutor createThreadPoolExecutor(final BlockingQueue<Runnable> queue,
+                                                             final String threadName,
+                                                             ThreadFactory threadFactory,
+                                                             final RejectedExecutionHandler policy)
    {
       if (threadFactory == null) {
          threadFactory = new DefaultThreadFactory(threadName, true);
       }
 
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(1 /*core*/, 1 /*max*/, 5 /*keepalive*/, SECONDS, queue, threadFactory, policy);
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(1 /*core*/, 1 /*max*/, 5 /*keepalive*/,
+         SECONDS, queue, threadFactory, policy);
       executor.allowCoreThreadTimeOut(true);
       return executor;
    }
