@@ -78,8 +78,8 @@ public class ConcurrentBag<T extends IConcurrentBagEntry> implements AutoCloseab
    {
       int STATE_NOT_IN_USE = 0;
       int STATE_IN_USE = 1;
-      int STATE_REMOVED = -1;
-      int STATE_RESERVED = -2;
+      int STATE_REMOVED = -1; //已移除
+      int STATE_RESERVED = -2; //预定
 
       boolean compareAndSet(int expectState, int newState);
       void setState(int newState);
@@ -99,6 +99,7 @@ public class ConcurrentBag<T extends IConcurrentBagEntry> implements AutoCloseab
    public ConcurrentBag(final IBagStateListener listener)
    {
       this.listener = listener;
+      //默认为false
       this.weakThreadLocals = useWeakThreadLocals();
 
       this.handoffQueue = new SynchronousQueue<>(true);
@@ -192,19 +193,20 @@ public class ConcurrentBag<T extends IConcurrentBagEntry> implements AutoCloseab
       bagEntry.setState(STATE_NOT_IN_USE);
 
       for (int i = 0; waiters.get() > 0; i++) {
+         //加入到互斥队列成功或者处于没有使用的状态则返回
          if (bagEntry.getState() != STATE_NOT_IN_USE || handoffQueue.offer(bagEntry)) {
             return;
          }
-         else if ((i & 0xff) == 0xff) {
+         else if ((i & 0xff) == 0xff) {//如果是256个连接则阻塞10纳秒
             parkNanos(MICROSECONDS.toNanos(10));
          }
-         else {
+         else {//让出cup
             yield();
          }
       }
 
       final List<Object> threadLocalList = threadList.get();
-      if (threadLocalList != null) {
+      if (threadLocalList != null) {//如果线程本地有值则加入
     	  threadLocalList.add(weakThreadLocals ? new WeakReference<>(bagEntry) : bagEntry);
       }
    }

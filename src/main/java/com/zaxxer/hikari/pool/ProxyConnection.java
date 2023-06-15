@@ -470,7 +470,8 @@ public abstract class ProxyConnection implements Connection
             }
          };
 
-         return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class[] { Connection.class }, handler);
+         return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
+            new Class[] { Connection.class }, handler);
       }
    }
 }
